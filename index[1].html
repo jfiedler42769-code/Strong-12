@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171923">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="12-Week Strong">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>12-Week Strength + Mobility</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--ink:#171923;--muted:#667085;--accent:#7c3aed;--accent2:#ec4899;--ok:#16a34a;--line:#e5e7eb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:520px;margin:auto;min-height:100vh;padding:calc(18px + env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom))}
+.hero{background:linear-gradient(135deg,#171923,#312e81);color:#fff;border-radius:24px;padding:22px;box-shadow:0 14px 35px rgba(23,25,35,.18)}
+.hero h1{font-size:25px;line-height:1.1;margin:0 0 8px}.hero p{margin:0;color:#ddd6fe}.progress{height:10px;background:#ffffff25;border-radius:99px;overflow:hidden;margin-top:18px}.progress>div{height:100%;background:linear-gradient(90deg,#c4b5fd,#f9a8d4);width:0}.smallrow{display:flex;justify-content:space-between;font-size:13px;margin-top:8px}
+.section-title{font-size:18px;margin:24px 2px 12px}
+.card{background:var(--card);border-radius:18px;padding:16px;margin:10px 0;box-shadow:0 4px 18px rgba(16,24,40,.06)}
+.week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.day{border:0;border-radius:13px;padding:9px 2px;background:#eceef2;font-weight:700;font-size:12px}.day.active{background:var(--accent);color:white}
+.phase{display:flex;gap:8px}.phase button{flex:1;border:1px solid var(--line);background:white;border-radius:12px;padding:10px;font-weight:700}.phase button.active{background:#171923;color:white}
+.workout-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.workout-head h2{margin:0;font-size:22px}.badge{background:#ede9fe;color:#5b21b6;padding:6px 9px;border-radius:99px;font-size:12px;font-weight:700}
+.exercise{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;border-top:1px solid var(--line);padding:14px 0}.exercise:first-of-type{border-top:0}.check{width:26px;height:26px;accent-color:var(--ok)}.ex-name{font-weight:750}.ex-detail{color:var(--muted);font-size:13px;margin-top:3px;line-height:1.35}.timer-btn{border:0;background:#ede9fe;color:#5b21b6;border-radius:10px;padding:8px;font-weight:800;min-width:52px}.notes{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:8px;font:inherit;resize:vertical;min-height:54px}
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:white;border-radius:15px;padding:13px}.metric label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}.metric input{width:100%;font-size:18px;font-weight:700;border:0;outline:0;background:transparent}
+.timer-overlay{display:none;position:fixed;inset:0;background:#171923ed;color:white;z-index:10;align-items:center;justify-content:center;text-align:center;padding:24px}.timer-overlay.show{display:flex}.timer-num{font-size:86px;font-weight:900}.timer-overlay button{border:0;border-radius:14px;padding:13px 20px;font-weight:800;margin:5px}
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(520px,100%);display:grid;grid-template-columns:repeat(3,1fr);background:#ffffffee;backdrop-filter:blur(15px);border-top:1px solid var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom));z-index:5}.nav button{border:0;background:transparent;padding:8px;font-weight:700;color:var(--muted)}.nav button.active{color:var(--accent)}
+.page{display:none}.page.active{display:block}.success{color:var(--ok);font-weight:800}.reset{border:0;background:#fee2e2;color:#991b1b;border-radius:12px;padding:11px 14px;font-weight:800}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1117;--card:#191c25;--ink:#f8fafc;--muted:#a3aab8;--line:#2a2f3b}.day{background:#252a35}.phase button,.metric{background:var(--card);color:var(--ink)}.nav{background:#171923ee}}
+</style>
+</head>
+<body>
+<div class="app">
+<section id="todayPage" class="page active">
+  <div class="hero">
+    <h1>12-Week Strength + Mobility</h1>
+    <p>Track every workout, rest period, and weekly win.</p>
+    <div class="progress"><div id="progressBar"></div></div>
+    <div class="smallrow"><span id="progressText">0% complete</span><span id="weekLabel">Week 1 of 12</span></div>
+  </div>
+
+  <h3 class="section-title">Week & phase</h3>
+  <div class="card">
+    <input id="weekSlider" type="range" min="1" max="12" value="1" style="width:100%">
+    <div class="smallrow"><span>Week 1</span><span>Week 12</span></div>
+    <div class="phase" style="margin-top:14px">
+      <button data-phase="1" class="active">Phase 1<br><small>Weeks 1–4</small></button>
+      <button data-phase="2">Phase 2<br><small>Weeks 5–8</small></button>
+      <button data-phase="3">Phase 3<br><small>Weeks 9–12</small></button>
+    </div>
+  </div>
+
+  <h3 class="section-title">Choose a day</h3>
+  <div class="week-row">
+    <button class="day" data-day="mon">M</button><button class="day" data-day="tue">T</button>
+    <button class="day" data-day="wed">W</button><button class="day" data-day="thu">T</button>
+    <button class="day" data-day="fri">F</button><button class="day" data-day="sat">S</button>
+    <button class="day" data-day="sun">S</button>
+  </div>
+
+  <div class="card" id="workoutCard"></div>
+</section>
+
+<section id="habitsPage" class="page">
+  <div class="hero"><h1>Daily Success Rules</h1><p>Small habits that support your training.</p></div>
+  <h3 class="section-title">Today’s tracker</h3>
+  <div class="rules">
+    <div class="metric"><label>Protein (goal 110–140 g)</label><input id="protein" type="number" placeholder="0"></div>
+    <div class="metric"><label>Water (goal 80–100 oz)</label><input id="water" type="number" placeholder="0"></div>
+    <div class="metric"><label>Steps (goal 8k–10k)</label><input id="steps" type="number" placeholder="0"></div>
+    <div class="metric"><label>Sleep (goal 7+ hours)</label><input id="sleep" type="number" step=".1" placeholder="0"></div>
+  </div>
+  <div class="card">
+    <b>Intensity target: 8/10</b>
+    <p style="color:var(--muted);line-height:1.5">Work should feel challenging but controlled. Increase weight when form is excellent and the prescribed reps feel easy.</p>
+  </div>
+  <div class="card">
+    <b>Exercise focus</b>
+    <p>Intervals & carries • Rows & pulldowns • Hip thrusts & RDLs</p>
+  </div>
+</section>
+
+<section id="progressPage" class="page">
+  <div class="hero"><h1>Your Progress</h1><p>Completion is saved privately on this device.</p></div>
+  <div class="card">
+    <h3 style="margin-top:0">12-week summary</h3>
+    <div id="summary"></div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Phase 2 & 3 progression</h3>
+    <p>Increase weight by 5–10%, reduce rest to 30–45 seconds, and use supersets or circuits for higher density and volume.</p>
+  </div>
+  <button class="reset" id="resetBtn">Reset all app data</button>
+</section>
+</div>
+
+<div class="nav">
+  <button data-page="todayPage" class="active">Workout</button>
+  <button data-page="habitsPage">Habits</button>
+  <button data-page="progressPage">Progress</button>
+</div>
+
+<div class="timer-overlay" id="timerOverlay">
+  <div>
+    <div style="font-weight:800">REST TIMER</div>
+    <div class="timer-num" id="timerNum">60</div>
+    <div>
+      <button id="minus15">−15 sec</button><button id="closeTimer">Close</button><button id="plus15">+15 sec</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const workouts = {"mon": {"title": "Lower Body + Glutes", "subtitle": "Monday", "exercises": [{"name": "Warm-Up", "detail": "Incline Walk (5 min), Walking Lunges (10/leg), Glute Bridges (15), Band Walks (15)", "rest": 0}, {"name": "DB/Trap Deadlift", "detail": "4 × 8 • 75–85 lb", "rest": 90}, {"name": "Leg Press", "detail": "3 × 12 • Moderate", "rest": 60}, {"name": "DB Romanian Deadlift", "detail": "3 × 10 • 25 lb", "rest": 60}, {"name": "Cable Pull Through", "detail": "3 × 12 • Moderate", "rest": 45}, {"name": "Hip Thrust / Lunges", "detail": "3 × 12 / 2 × 20", "rest": 60}, {"name": "Core Finisher", "detail": "Dead Bugs (12/side), Plank (45 sec), Farmer Carry (40 yd), Stairs (10 min)", "rest": 0}]}, "tue": {"title": "Upper Body + Conditioning", "subtitle": "Tuesday", "exercises": [{"name": "Chest Press Machine", "detail": "4 × 10 • 60–70 lb", "rest": 60}, {"name": "Assisted Pull-Ups", "detail": "3 × 8–10", "rest": 60}, {"name": "Seated Cable Row", "detail": "3 × 12 • Moderate", "rest": 45}, {"name": "DB Shoulder Press", "detail": "3 × 10 • 12–15 lb", "rest": 60}, {"name": "Lat Pulldown / Face Pull", "detail": "3 × 12 / 15", "rest": 45}, {"name": "Curls / Pushdowns", "detail": "3 × 12", "rest": 30}, {"name": "Rowing Pyramid", "detail": "1 min moderate / 30 sec hard × 6", "rest": 0}]}, "wed": {"title": "Mobility + Agility", "subtitle": "Wednesday", "exercises": [{"name": "World’s Greatest Stretch", "detail": "5 per side", "rest": 0}, {"name": "Hip Flexor Stretch", "detail": "45 sec", "rest": 0}, {"name": "Thoracic Rotations", "detail": "10 reps", "rest": 0}, {"name": "Cat-Cow", "detail": "10 reps", "rest": 0}, {"name": "Deep Squat Hold", "detail": "45 sec", "rest": 0}, {"name": "Shoulder Mobility", "detail": "2 min", "rest": 0}, {"name": "Agility Ladder", "detail": "1 min", "rest": 0}, {"name": "Side Shuffles", "detail": "30 sec", "rest": 0}, {"name": "Hurdle Stepovers", "detail": "30 sec", "rest": 0}, {"name": "Med Ball Slams", "detail": "12 reps", "rest": 0}, {"name": "Battle Ropes", "detail": "30 sec", "rest": 0}, {"name": "Recovery Cardio", "detail": "30–40 min steady bike, walk, or elliptical", "rest": 0}]}, "thu": {"title": "Lower Sculpt + Stability", "subtitle": "Thursday", "exercises": [{"name": "Goblet Squat", "detail": "4 × 12 • Moderate", "rest": 60}, {"name": "Step-Ups / Single-Leg RDL", "detail": "3 × 10 • 15 lb", "rest": 45}, {"name": "Cable Kickbacks", "detail": "3 × 15 • Moderate", "rest": 30}, {"name": "Curl / Abductor Machine", "detail": "3 × 12 / 15", "rest": 45}, {"name": "Sled / Treadmill Push", "detail": "5 rounds", "rest": 60}, {"name": "Core Finisher", "detail": "Bird Dogs (10 each), Side Plank (30 sec), Bear Plank Shoulder Taps (12/side)", "rest": 0}]}, "fri": {"title": "Upper Body + Core + Intervals", "subtitle": "Friday", "exercises": [{"name": "Incline DB Press", "detail": "4 × 10 • 25 lb", "rest": 60}, {"name": "Chest-Supported Row", "detail": "4 × 10 • Moderate", "rest": 60}, {"name": "Push-Ups / Flys", "detail": "3 × AMRAP / 15", "rest": 45}, {"name": "Incline Curls / Pushdowns", "detail": "3 × 12 • 15 lb", "rest": 30}, {"name": "Core Circuit", "detail": "Knee Raises (12), Russian Twists (20), Bear Plank Shoulder Taps (20), Reverse Crunches (15)", "rest": 0}, {"name": "Elliptical Intervals", "detail": "45 sec hard / 75 sec easy × 10", "rest": 0}]}, "sat": {"title": "Active Fun", "subtitle": "Saturday", "exercises": [{"name": "Choose an activity you enjoy", "detail": "Walk, hike, bike, swim, dance, pickleball, or another fun movement session.", "rest": 0}, {"name": "Suggested duration", "detail": "30–60 minutes at a comfortable effort.", "rest": 0}]}, "sun": {"title": "Rest + Mobility", "subtitle": "Sunday", "exercises": [{"name": "Recovery", "detail": "Rest, gentle walking, and easy mobility as needed.", "rest": 0}, {"name": "Weekly check-in", "detail": "Review completed workouts, energy, soreness, and next week’s goals.", "rest": 0}]}};
+const days = ["mon","tue","wed","thu","fri","sat","sun"];
+let state = JSON.parse(localStorage.getItem("strong12State") || "{}");
+state.week ||= 1;
+state.day ||= days[(new Date().getDay()+6)%7];
+state.done ||= {};
+state.notes ||= {};
+state.habits ||= {};
+const save=()=>{localStorage.setItem("strong12State",JSON.stringify(state));updateProgress();};
+
+function phaseForWeek(w){return w<=4?1:w<=8?2:3}
+function renderWorkout(){
+  document.querySelectorAll(".day").forEach(b=>b.classList.toggle("active",b.dataset.day===state.day));
+  document.querySelectorAll("[data-phase]").forEach(b=>b.classList.toggle("active",+b.dataset.phase===phaseForWeek(state.week)));
+  document.getElementById("weekSlider").value=state.week;
+  document.getElementById("weekLabel").textContent=`Week ${state.week} of 12`;
+  const w=workouts[state.day], key=`w${state.week}-${state.day}`;
+  let html=`<div class="workout-head"><div><div style="color:var(--muted);font-size:13px">${w.subtitle}</div><h2>${w.title}</h2></div><span class="badge">Phase ${phaseForWeek(state.week)}</span></div>`;
+  w.exercises.forEach((e,i)=>{
+    const id=`${key}-${i}`, checked=!!state.done[id];
+    html+=`<div class="exercise">
+      <input class="check" type="checkbox" data-id="${id}" ${checked?"checked":""}>
+      <div><div class="ex-name">${e.name}</div><div class="ex-detail">${e.detail}</div></div>
+      ${e.rest?`<button class="timer-btn" data-seconds="${e.rest}">${e.rest}s</button>`:""}
+    </div>`;
+  });
+  html+=`<textarea class="notes" id="workoutNotes" placeholder="Workout notes, weights used, or how you felt...">${state.notes[key]||""}</textarea>`;
+  document.getElementById("workoutCard").innerHTML=html;
+  document.querySelectorAll(".check").forEach(c=>c.onchange=()=>{state.done[c.dataset.id]=c.checked;save();renderWorkout()});
+  document.querySelectorAll(".timer-btn").forEach(b=>b.onclick=()=>startTimer(+b.dataset.seconds));
+  document.getElementById("workoutNotes").oninput=e=>{state.notes[key]=e.target.value;save()};
+  updateProgress();
+}
+function updateProgress(){
+  let total=0,done=0;
+  for(let wk=1;wk<=12;wk++) for(const d of days) workouts[d].exercises.forEach((_,i)=>{total++;if(state.done[`w${wk}-${d}-${i}`])done++});
+  const pct=Math.round(done/total*100);
+  document.getElementById("progressBar").style.width=pct+"%";
+  document.getElementById("progressText").textContent=`${pct}% complete`;
+  let summary="";
+  for(let wk=1;wk<=12;wk++){
+    let t=0,x=0; for(const d of days) workouts[d].exercises.forEach((_,i)=>{t++;if(state.done[`w${wk}-${d}-${i}`])x++});
+    summary+=`<p><b>Week ${wk}</b> — ${Math.round(x/t*100)}% ${x===t?'<span class="success">Complete</span>':''}</p>`;
+  }
+  document.getElementById("summary").innerHTML=summary;
+}
+document.querySelectorAll(".day").forEach(b=>b.onclick=()=>{state.day=b.dataset.day;save();renderWorkout()});
+document.getElementById("weekSlider").oninput=e=>{state.week=+e.target.value;save();renderWorkout()};
+document.querySelectorAll("[data-phase]").forEach(b=>b.onclick=()=>{state.week=(+b.dataset.phase-1)*4+1;save();renderWorkout()});
+document.querySelectorAll(".nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===b.dataset.page));
+  document.querySelectorAll(".nav button").forEach(n=>n.classList.toggle("active",n===b));
+  if(b.dataset.page==="progressPage")updateProgress();
+});
+["protein","water","steps","sleep"].forEach(id=>{
+  const el=document.getElementById(id); el.value=state.habits[id]||"";
+  el.oninput=e=>{state.habits[id]=e.target.value;save()};
+});
+let timer=null,remain=0;
+function startTimer(sec){remain=sec;document.getElementById("timerOverlay").classList.add("show");tick();clearInterval(timer);timer=setInterval(()=>{remain--;tick();if(remain<=0){clearInterval(timer);navigator.vibrate?.([200,100,200]);}},1000)}
+function tick(){document.getElementById("timerNum").textContent=Math.max(0,remain)}
+document.getElementById("closeTimer").onclick=()=>{clearInterval(timer);document.getElementById("timerOverlay").classList.remove("show")};
+document.getElementById("minus15").onclick=()=>{remain=Math.max(0,remain-15);tick()};
+document.getElementById("plus15").onclick=()=>{remain+=15;tick()};
+document.getElementById("resetBtn").onclick=()=>{if(confirm("Reset all workout and habit data?")){localStorage.removeItem("strong12State");location.reload()}};
+if("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js");
+renderWorkout();
+</script>
+</body>
+</html>
